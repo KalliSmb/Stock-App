@@ -10,7 +10,7 @@ function Login() {
   const handleLogin = (e) => {
     e.preventDefault();
     // Mock login validation
-    if (email === 'kayro@teste.pt' && password === '123456') {
+    if (email === 'kayro@dwm.pt' && password === '123456') {
       navigate('/stock');
     } else {
       alert('Email ou password inválida.');
