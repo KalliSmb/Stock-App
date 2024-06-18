@@ -5,15 +5,23 @@ import StockRow from './StockRow.js';
 class StockPage extends Component {
   constructor(props) {
     super(props);
+    const savedTotal = localStorage.getItem('total');
     this.state = {
-      total: 0
+      total: savedTotal ? parseFloat(savedTotal) : 0
     };
   }
 
-  updateTotal = (finalPrice) => {
-    this.setState((prevState) => ({
-      total: prevState.total + finalPrice
-    }));
+  updateTotal = (amount, action) => {
+    this.setState((prevState) => {
+      let newTotal;
+      if (action === 'buy') {
+        newTotal = prevState.total + amount;
+      } else if (action === 'sell') {
+        newTotal = prevState.total - amount;
+      }
+      localStorage.setItem('total', newTotal.toString());
+      return { total: newTotal };
+    });
   }
 
   render() {
@@ -43,8 +51,8 @@ class StockPage extends Component {
           </tbody>
           <tfoot>
             <tr className="fw-bold">
-              <td colSpan="6"></td>
               <td>TOTAL:</td>
+              <td colSpan="6"></td>
               <td>${this.state.total.toFixed(2)}</td>
               <td colSpan="2"></td>
             </tr>

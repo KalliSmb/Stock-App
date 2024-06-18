@@ -72,7 +72,7 @@ class StockRow extends Component {
   handleBuy = () => {
     const currentDate = new Date().toISOString().split('T')[0];
     const currentTime = new Date().toLocaleTimeString();
-    
+
     this.setState((prevState) => ({
       quantity: prevState.quantity + 1,
       purchasePrice: prevState.quantity === 0 ? prevState.currentPrice : prevState.purchasePrice,
@@ -80,31 +80,26 @@ class StockRow extends Component {
       purchaseTime: prevState.quantity === 0 ? currentTime : prevState.purchaseTime
     }), () => {
       this.saveDataToLocalStorage();
-      // Chama a função de atualização do total passada via prop
-      this.props.updateTotal(this.calculateFinalPrice());
+      this.props.updateTotal(parseFloat(this.state.currentPrice), 'buy');
     });
   }
 
   handleSell = () => {
-    this.setState((prevState) => {
-      const newQuantity = prevState.quantity > 0 ? prevState.quantity - 1 : 0;
+    if (this.state.quantity > 0) {
+      this.setState((prevState) => {
+        const newQuantity = prevState.quantity - 1;
 
-      return {
-        quantity: newQuantity,
-        purchasePrice: newQuantity === 0 ? 'N/A' : prevState.purchasePrice,
-        purchaseDate: newQuantity === 0 ? 'N/A' : prevState.purchaseDate,
-        purchaseTime: newQuantity === 0 ? 'N/A' : prevState.purchaseTime
-      };
-    }, () => {
-      this.saveDataToLocalStorage();
-      // Chama a função de atualização do total passada via prop
-      this.props.updateTotal(this.calculateFinalPrice());
-    });
-  }
-
-  calculateFinalPrice = () => {
-    const { purchasePrice, quantity } = this.state;
-    return purchasePrice !== 'N/A' && quantity > 0 ? purchasePrice * quantity : 0;
+        return {
+          quantity: newQuantity,
+          purchasePrice: newQuantity === 0 ? 'N/A' : prevState.purchasePrice,
+          purchaseDate: newQuantity === 0 ? 'N/A' : prevState.purchaseDate,
+          purchaseTime: newQuantity === 0 ? 'N/A' : prevState.purchaseTime
+        };
+      }, () => {
+        this.saveDataToLocalStorage();
+        this.props.updateTotal(parseFloat(this.state.currentPrice), 'sell');
+      });
+    }
   }
 
   render() {
@@ -115,7 +110,7 @@ class StockRow extends Component {
     } = this.state;
     const variation = purchasePrice !== 'N/A' && currentPrice !== 'N/A' ? ((currentPrice - purchasePrice) / purchasePrice * 100).toFixed(2) : 'N/A';
     const changeClass = variation !== 'N/A' ? (variation >= 0 ? 'text-success' : 'text-danger') : '';
-    const finalPrice = this.calculateFinalPrice();
+    const finalPrice = purchasePrice !== 'N/A' && quantity > 0 ? (purchasePrice * quantity).toFixed(2) : 'N/A';
 
     return (
       <tr className="stock-row">
@@ -126,7 +121,7 @@ class StockRow extends Component {
         <td>{purchaseTime}</td>
         <td>{quantity}</td>
         <td>${currentPrice}</td>
-        <td>${finalPrice.toFixed(2)}</td>
+        <td>${finalPrice}</td>
         <td className={changeClass}>{variation}%</td>
         <td>
           <button className="btn btn-success btn-sm me-2" onClick={this.handleBuy}>Comprar</button>
