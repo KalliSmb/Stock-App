@@ -5,10 +5,33 @@ import StockRow from './StockRow.js';
 class StockPage extends Component {
   constructor(props) {
     super(props);
-    const savedTotal = localStorage.getItem('total');
+    
+    // Carregar ações do localStorage
+    const stocks = this.loadStocksFromLocalStorage();
+    const total = this.calculateTotal(stocks);
+
     this.state = {
-      total: savedTotal ? parseFloat(savedTotal) : 0
+      total: total,
+      stocks: stocks
     };
+  }
+
+  loadStocksFromLocalStorage = () => {
+    const stocks = [];
+    for (const key in localStorage) {
+      if (localStorage.hasOwnProperty(key) && key.startsWith('stock-')) {
+        const stockData = JSON.parse(localStorage.getItem(key));
+        stocks.push(stockData);
+      }
+    }
+    return stocks;
+  }
+
+  calculateTotal = (stocks) => {
+    return stocks.reduce((acc, stock) => {
+      const finalPrice = stock.purchasePrice !== 'N/A' && stock.quantity > 0 ? stock.purchasePrice * stock.quantity : 0;
+      return acc + finalPrice;
+    }, 0);
   }
 
   updateTotal = (amount, action) => {
@@ -24,9 +47,39 @@ class StockPage extends Component {
     });
   }
 
+  handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    const reader = new FileReader();
+    
+    reader.onload = (e) => {
+      const data = JSON.parse(e.target.result);
+      this.importPortfolio(data);
+    };
+
+    reader.readAsText(file);
+  }
+
+  importPortfolio = (data) => {
+    if (data.total) {
+      localStorage.setItem('total', data.total.toString());
+    }
+    if (data.stocks) {
+      data.stocks.forEach(stock => {
+        localStorage.setItem(`stock-${stock.ticker}`, JSON.stringify(stock));
+      });
+      const stocks = this.loadStocksFromLocalStorage();
+      const total = this.calculateTotal(stocks);
+      this.setState({
+        total: total,
+        stocks: stocks
+      });
+    }
+  }
+
   render() {
     return (
       <div className="container mt-5">
+        <input type="file" accept=".json" onChange={this.handleFileUpload} className="mb-3" />
         <table className="table">
           <thead>
             <tr>
@@ -43,11 +96,20 @@ class StockPage extends Component {
             </tr>
           </thead>
           <tbody>
-            <StockRow ticker="AAPL" initialQuantity={0} updateTotal={this.updateTotal} />
-            <StockRow ticker="GOOGL" initialQuantity={0} updateTotal={this.updateTotal} />
-            <StockRow ticker="MSFT" initialQuantity={0} updateTotal={this.updateTotal} />
-            <StockRow ticker="TSLA" initialQuantity={0} updateTotal={this.updateTotal} />
-            <StockRow ticker="NVDA" initialQuantity={0} updateTotal={this.updateTotal} />
+            {this.state.stocks.length === 0 ? (
+              <tr>
+                <td colSpan="10" className="text-center">Por favor, importe um ficheiro JSON para carregar as ações.</td>
+              </tr>
+            ) : (
+              this.state.stocks.map(stock => (
+                <StockRow
+                  key={stock.ticker}
+                  ticker={stock.ticker}
+                  initialQuantity={stock.quantity}
+                  updateTotal={this.updateTotal}
+                />
+              ))
+            )}
           </tbody>
           <tfoot>
             <tr className="fw-bold">
