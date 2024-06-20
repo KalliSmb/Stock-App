@@ -47,19 +47,6 @@ class StockPage extends Component {
     }, 0);
   }
 
-  updateTotal = (amount, action) => {
-    this.setState((prevState) => {
-      let newTotal;
-      if (action === 'buy') {
-        newTotal = prevState.total + amount;
-      } else if (action === 'sell') {
-        newTotal = prevState.total - amount;
-      }
-      localStorage.setItem('total', newTotal.toString());
-      return { total: newTotal };
-    });
-  }
-
   handleFileUpload = (event) => {
     const file = event.target.files[0];
     const reader = new FileReader();
@@ -113,13 +100,12 @@ class StockPage extends Component {
               <th>Preço Atual</th>
               <th>Preço Final</th>
               <th>Variação (%)</th>
-              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             {this.state.stocks.length === 0 ? (
               <tr>
-                <td colSpan="10" className="text-center">Por favor, importe um ficheiro JSON para carregar as ações.</td>
+                <td colSpan="9" className="text-center">Por favor, importe um ficheiro JSON para carregar as ações.</td>
               </tr>
             ) : (
               this.state.stocks.map(stock => (
@@ -127,7 +113,6 @@ class StockPage extends Component {
                   key={stock.ticker}
                   ticker={stock.ticker}
                   initialQuantity={stock.quantity}
-                  updateTotal={this.updateTotal}
                 />
               ))
             )}
@@ -137,7 +122,7 @@ class StockPage extends Component {
               <td>TOTAL:</td>
               <td colSpan="6"></td>
               <td>${this.state.total.toFixed(2)}</td>
-              <td colSpan="2"></td>
+              <td></td>
             </tr>
           </tfoot>
         </table>

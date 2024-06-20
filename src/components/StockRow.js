@@ -69,39 +69,6 @@ class StockRow extends Component {
     localStorage.setItem(`stock-${ticker}`, JSON.stringify(data));
   }
 
-  handleBuy = () => {
-    const currentDate = new Date().toISOString().split('T')[0];
-    const currentTime = new Date().toLocaleTimeString();
-
-    this.setState((prevState) => ({
-      quantity: prevState.quantity + 1,
-      purchasePrice: prevState.quantity === 0 ? prevState.currentPrice : prevState.purchasePrice,
-      purchaseDate: prevState.quantity === 0 ? currentDate : prevState.purchaseDate,
-      purchaseTime: prevState.quantity === 0 ? currentTime : prevState.purchaseTime
-    }), () => {
-      this.saveDataToLocalStorage();
-      this.props.updateTotal(parseFloat(this.state.currentPrice), 'buy');
-    });
-  }
-
-  handleSell = () => {
-    if (this.state.quantity > 0) {
-      this.setState((prevState) => {
-        const newQuantity = prevState.quantity - 1;
-
-        return {
-          quantity: newQuantity,
-          purchasePrice: newQuantity === 0 ? 'N/A' : prevState.purchasePrice,
-          purchaseDate: newQuantity === 0 ? 'N/A' : prevState.purchaseDate,
-          purchaseTime: newQuantity === 0 ? 'N/A' : prevState.purchaseTime
-        };
-      }, () => {
-        this.saveDataToLocalStorage();
-        this.props.updateTotal(parseFloat(this.state.currentPrice), 'sell');
-      });
-    }
-  }
-
   render() {
     const { ticker } = this.props;
     const {
@@ -123,10 +90,6 @@ class StockRow extends Component {
         <td>${currentPrice}</td>
         <td>${finalPrice}</td>
         <td className={changeClass}>{variation}%</td>
-        <td>
-          <button className="btn btn-success btn-sm me-2" onClick={this.handleBuy}>Comprar</button>
-          <button className="btn btn-danger btn-sm" onClick={this.handleSell}>Vender</button>
-        </td>
       </tr>
     );
   }
