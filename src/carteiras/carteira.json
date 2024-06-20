@@ -1,0 +1,18 @@
+{
+  "stocks": [
+    {
+      "ticker": "AAPL",
+      "quantity": 10,
+      "purchasePrice": 140.50,
+      "purchaseDate": "2023-06-15",
+      "purchaseTime": "10:30:00"
+    },
+    {
+      "ticker": "GOOGL",
+      "quantity": 5,
+      "purchasePrice": 200.75,
+      "purchaseDate": "2023-06-15",
+      "purchaseTime": "10:30:00"
+    }
+  ]
+}
