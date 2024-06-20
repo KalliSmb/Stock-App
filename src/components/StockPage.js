@@ -84,10 +84,39 @@ class StockPage extends Component {
     }
   }
 
+  downloadPortfolio = () => {
+    const data = {
+      total: this.state.total,
+      stocks: this.state.stocks.map(stock => ({
+        ticker: stock.ticker,
+        name: stock.name,
+        currentDate: stock.currentDate,
+        currentTime: stock.currentTime,
+        currentPrice: stock.currentPrice,
+        changePercent: stock.changePercent,
+        quantity: stock.quantity,
+        purchasePrice: stock.purchasePrice,
+        purchaseDate: stock.purchaseDate,
+        purchaseTime: stock.purchaseTime
+      }))
+    };
+
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", "carteira.json");
+    document.body.appendChild(downloadAnchorNode); // required for firefox
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  }
+
   render() {
     return (
       <div className="container mt-5">
-        <input type="file" accept=".json" onChange={this.handleFileUpload} className="mb-3" />
+        <div className="mb-3">
+          <input type="file" accept=".json" onChange={this.handleFileUpload} className="me-2" />
+          <button className="btn btn-primary" onClick={this.downloadPortfolio}>Download Portfolio</button>
+        </div>
         <table className="table">
           <thead>
             <tr>

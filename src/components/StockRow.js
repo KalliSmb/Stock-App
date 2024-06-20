@@ -62,7 +62,7 @@ class StockRow extends Component {
     } = this.state;
 
     const data = {
-      name, currentDate, currentTime, currentPrice, changePercent,
+      ticker, name, currentDate, currentTime, currentPrice, changePercent,
       quantity, purchasePrice, purchaseDate, purchaseTime
     };
 
