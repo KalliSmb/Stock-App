@@ -10,10 +10,23 @@ class StockPage extends Component {
     const stocks = this.loadStocksFromLocalStorage();
     const total = this.calculateTotal(stocks);
 
+    // Carregar total do localStorage
+    const savedTotal = localStorage.getItem('total');
     this.state = {
-      total: total,
+      total: savedTotal ? parseFloat(savedTotal) : total,
       stocks: stocks
     };
+  }
+
+  componentDidMount() {
+    // Verificar se há dados no localStorage e carregar se existirem
+    const savedStocks = JSON.parse(localStorage.getItem('stocks')) || [];
+
+    if (savedStocks.length > 0) {
+      this.setState({
+        stocks: savedStocks
+      });
+    }
   }
 
   loadStocksFromLocalStorage = () => {
@@ -68,10 +81,18 @@ class StockPage extends Component {
         localStorage.setItem(`stock-${stock.ticker}`, JSON.stringify(stock));
       });
       const stocks = this.loadStocksFromLocalStorage();
-      const total = this.calculateTotal(stocks);
       this.setState({
-        total: total,
         stocks: stocks
+      }, () => {
+        // Após atualizar o estado, também atualizamos o localStorage
+        localStorage.setItem('stocks', JSON.stringify(stocks));
+
+        // Recalcula o total após a importação
+        const total = this.calculateTotal(stocks);
+        this.setState({
+          total: total
+        });
+        localStorage.setItem('total', total.toString());
       });
     }
   }
